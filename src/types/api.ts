@@ -24,6 +24,14 @@ export interface Post {
   createdAt: string;
 }
 
+export interface Comment {
+  id: string;
+  postId: string;
+  author: Author;
+  text: string;
+  createdAt: string;
+}
+
 export interface PostsPage {
   posts: Post[];
   nextCursor: string | null;
@@ -40,6 +48,31 @@ export interface LikeResponse {
   data: {
     isLiked: boolean;
     likesCount: number;
+  };
+}
+
+export interface PostDetailResponse {
+  ok: true;
+  data: {
+    post: Post;
+  };
+}
+
+export interface CommentsPage {
+  comments: Comment[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export interface CommentsResponse {
+  ok: true;
+  data: CommentsPage;
+}
+
+export interface CommentCreatedResponse {
+  ok: true;
+  data: {
+    comment: Comment;
   };
 }
 

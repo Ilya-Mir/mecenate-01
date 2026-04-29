@@ -13,7 +13,36 @@ export const styles = StyleSheet.create({
     paddingTop: tokens.spacing[1],
     paddingBottom: tokens.spacing[8],
   },
+  filterBar: {
+    flexDirection: 'row',
+    gap: tokens.spacing[2],
+    paddingHorizontal: tokens.spacing[4],
+    paddingBottom: tokens.spacing[3],
+  },
+  filterTab: {
+    minHeight: 36,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: tokens.radius.pill,
+    backgroundColor: tokens.colors.background.card,
+    borderWidth: 1,
+    borderColor: tokens.colors.border.subtle,
+  },
+  filterTabActive: {
+    backgroundColor: tokens.colors.brand.primary,
+    borderColor: tokens.colors.brand.primary,
+  },
+  filterLabel: {
+    ...tokens.typography.bodyStrong,
+    color: tokens.colors.content.secondary,
+    textAlign: 'center',
+  },
+  filterLabelActive: {
+    color: tokens.colors.content.inverse,
+  },
   inlineError: {
+    marginHorizontal: tokens.spacing[4],
     marginBottom: tokens.spacing[4],
     borderRadius: tokens.radius.lg,
     padding: tokens.spacing[4],

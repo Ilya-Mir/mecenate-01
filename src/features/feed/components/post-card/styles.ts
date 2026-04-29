@@ -13,6 +13,9 @@ export const styles = StyleSheet.create({
   paidCard: {
     minHeight: tokens.components.feedCard.paidMinHeight,
   },
+  pressableContent: {
+    gap: tokens.components.feedCard.sectionGap,
+  },
   header: {
     height: tokens.components.feedCard.headerHeight,
     flexDirection: 'row',

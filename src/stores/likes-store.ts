@@ -29,6 +29,19 @@ export class LikesStore {
     this.likesByPostId.set(postId, snapshot);
   }
 
+  applyRealtimeCount(
+    post: Pick<Post, 'id' | 'isLiked' | 'likesCount'>,
+    likesCount: number,
+  ) {
+    const localSnapshot = this.getSnapshot(post);
+
+    this.likesByPostId.set(post.id, {
+      ...localSnapshot,
+      likesCount,
+      isPending: false,
+    });
+  }
+
   clear(postId: string) {
     this.likesByPostId.delete(postId);
   }

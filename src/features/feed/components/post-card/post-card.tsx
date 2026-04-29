@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { Alert, Image, Text, View } from 'react-native';
+import { Alert, Image, Pressable, Text, View } from 'react-native';
 
 import { toggleLike } from '../../../../api/posts';
 import { useRootStore } from '../../../../stores/root-store';
@@ -17,9 +17,13 @@ import { styles } from './styles';
 
 interface PostCardProps {
   post: Post;
+  onPress?: () => void;
 }
 
-export const PostCard = observer(function PostCard({ post }: PostCardProps) {
+export const PostCard = observer(function PostCard({
+  post,
+  onPress,
+}: PostCardProps) {
   const { likesStore, sessionStore } = useRootStore();
   const likeSnapshot = likesStore.getSnapshot(post);
   const isPaidPost = post.tier === 'paid';
@@ -67,8 +71,8 @@ export const PostCard = observer(function PostCard({ post }: PostCardProps) {
     }
   };
 
-  return (
-    <CardSurface style={[styles.card, isPaidPost ? styles.paidCard : null]}>
+  const mainContent = (
+    <>
       <View style={styles.header}>
         <Avatar
           name={post.author.displayName}
@@ -123,22 +127,46 @@ export const PostCard = observer(function PostCard({ post }: PostCardProps) {
           )}
         </View>
       </View>
+    </>
+  );
 
-      {!isPaidPost ? (
-        <View style={styles.actionsRow}>
-          <ActionButton
-            active={likeSnapshot.isLiked}
-            disabled={likeSnapshot.isPending}
-            kind="like"
-            onPress={handleLikePress}
-            value={formatCompactCount(likeSnapshot.likesCount)}
-          />
-          <ActionButton
-            kind="comment"
-            value={formatCompactCount(post.commentsCount)}
-          />
-        </View>
-      ) : null}
+  const actions = !isPaidPost ? (
+    <View style={styles.actionsRow}>
+      <ActionButton
+        active={likeSnapshot.isLiked}
+        disabled={likeSnapshot.isPending}
+        kind="like"
+        onPress={handleLikePress}
+        value={formatCompactCount(likeSnapshot.likesCount)}
+      />
+      <ActionButton
+        kind="comment"
+        onPress={onPress}
+        value={formatCompactCount(post.commentsCount)}
+      />
+    </View>
+  ) : null;
+
+  const content = (
+    <>
+      {onPress ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={onPress}
+          style={styles.pressableContent}
+        >
+          {mainContent}
+        </Pressable>
+      ) : (
+        mainContent
+      )}
+      {actions}
+    </>
+  );
+
+  return (
+    <CardSurface style={[styles.card, isPaidPost ? styles.paidCard : null]}>
+      {content}
     </CardSurface>
   );
 });

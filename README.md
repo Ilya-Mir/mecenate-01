@@ -13,8 +13,14 @@
 - экран feed с карточками постов
 - cursor-based пагинация при скролле вниз
 - `pull-to-refresh`
+- таб-фильтр `Все / Бесплатные / Платные` через API-параметр `tier`
+- переход по карточке на экран детальной публикации
+- экран post detail с полным текстом, обложкой и автором
+- lazy-load комментариев и отправка нового комментария
+- real-time обновления лайков и комментариев через WebSocket
+- лайк на detail-экране с `react-native-reanimated` анимацией счётчика и `expo-haptics`
 - заглушка для `tier: "paid"` вместо текста публикации
-- экран ошибки с сообщением `Не удалось загрузить публикации` и кнопкой повтора
+- экран ошибки с сообщением `Не удалось загрузить публикацию` и кнопкой повтора
 - лайк поста с optimistic UI через `MobX`
 - сетевой слой поверх API `https://k8s.mectest.ru/test-app`
 
@@ -22,6 +28,7 @@
 
 - `React Query` отвечает за server state, загрузку ленты и пагинацию
 - `MobX` хранит клиентское состояние сессии и optimistic like state
+- `WebSocket` подписка подключается на detail-экране по `/ws?token=<uuid>` и обновляет cache React Query
 - дизайн-токены лежат в [`src/theme/tokens.ts`](./src/theme/tokens.ts)
 
 ## Переменные окружения
@@ -34,6 +41,8 @@ EXPO_PUBLIC_API_TOKEN=550e8400-e29b-41d4-a716-446655440000
 ```
 
 Переменные с префиксом `EXPO_PUBLIC_` попадают в клиентский бандл Expo, это **не** секретное хранилище. Здесь `EXPO_PUBLIC_API_TOKEN` — публичная конфигурация идентификатора запросов: backend принимает любой валидный UUID как bearer token.
+
+WebSocket URL вычисляется из `EXPO_PUBLIC_API_BASE_URL`: для дефолтного API это `wss://k8s.mectest.ru/test-app/ws?token=<uuid>`.
 
 ### Предпросмотр экранов ошибки и «ничего не найдено»
 
@@ -88,6 +97,8 @@ src/
   api/                 HTTP client и запросы к posts API
   config/              env-конфиг
   features/feed/       экран ленты и UI-компоненты
+  features/post-detail/ экран детальной публикации, комментарии, animated like
+  realtime/            WebSocket events и cache updates
   stores/              MobX stores
   theme/               foundations, component tokens и шрифты
   types/               типы API

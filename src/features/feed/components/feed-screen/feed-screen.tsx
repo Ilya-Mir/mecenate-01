@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   FlatList,
   Platform,
+  Pressable,
   RefreshControl,
   Text,
   View,
@@ -14,6 +15,7 @@ import { env } from '../../../../config/env';
 import { useRootStore } from '../../../../stores/root-store';
 import { tokens } from '../../../../theme/tokens';
 import { Post } from '../../../../types/api';
+import { FeedTierFilter } from '../../../../types/feed';
 import { useFeedPosts } from '../../hooks/use-feed-posts';
 import { ErrorState } from '../error-state';
 import { FeedCardSkeleton } from '../feed-card-skeleton';
@@ -21,8 +23,21 @@ import { NoResultsState } from '../no-results-state';
 import { PostCard } from '../post-card';
 import { styles } from './styles';
 
-export const FeedScreen = observer(function FeedScreen() {
+const FILTERS: Array<{ label: string; value: FeedTierFilter }> = [
+  { label: 'Все', value: 'all' },
+  { label: 'Бесплатные', value: 'free' },
+  { label: 'Платные', value: 'paid' },
+];
+
+interface FeedScreenProps {
+  onOpenPost?: (postId: string) => void;
+}
+
+export const FeedScreen = observer(function FeedScreen({
+  onOpenPost,
+}: FeedScreenProps) {
   const { likesStore } = useRootStore();
+  const [tierFilter, setTierFilter] = useState<FeedTierFilter>('all');
   const [uiPreview, setUiPreview] = useState<'off' | 'error' | 'no-results'>(() => {
     const preview = env.feedUiPreview;
     return preview === 'error' || preview === 'no-results' ? preview : 'off';
@@ -36,7 +51,7 @@ export const FeedScreen = observer(function FeedScreen() {
     isPending,
     isRefetching,
     refetch,
-  } = useFeedPosts();
+  } = useFeedPosts(tierFilter);
 
   const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
@@ -130,17 +145,46 @@ export const FeedScreen = observer(function FeedScreen() {
           )
         }
         ListHeaderComponent={
-          hasInlineError ? (
-            <View style={styles.inlineError}>
-              <Text style={styles.inlineErrorTitle}>
-                Не удалось загрузить публикации
-              </Text>
-              <Text style={styles.inlineErrorText}>
-                Уже загруженные карточки сохранены. Потяните список вниз или
-                попробуйте еще раз позже.
-              </Text>
+          <>
+            <View style={styles.filterBar}>
+              {FILTERS.map((filter) => {
+                const isActive = tierFilter === filter.value;
+
+                return (
+                  <Pressable
+                    accessibilityRole="button"
+                    key={filter.value}
+                    onPress={() => setTierFilter(filter.value)}
+                    style={[
+                      styles.filterTab,
+                      isActive ? styles.filterTabActive : null,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.filterLabel,
+                        isActive ? styles.filterLabelActive : null,
+                      ]}
+                    >
+                      {filter.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
-          ) : null
+
+            {hasInlineError ? (
+              <View style={styles.inlineError}>
+                <Text style={styles.inlineErrorTitle}>
+                  Не удалось загрузить публикации
+                </Text>
+                <Text style={styles.inlineErrorText}>
+                  Уже загруженные карточки сохранены. Потяните список вниз или
+                  попробуйте еще раз позже.
+                </Text>
+              </View>
+            ) : null}
+          </>
         }
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
@@ -149,7 +193,12 @@ export const FeedScreen = observer(function FeedScreen() {
         }}
         onEndReachedThreshold={0.35}
         refreshControl={refreshControl}
-        renderItem={({ item }) => <PostCard post={item} />}
+        renderItem={({ item }) => (
+          <PostCard
+            onPress={() => onOpenPost?.(item.id)}
+            post={item}
+          />
+        )}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>

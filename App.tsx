@@ -5,11 +5,13 @@ import { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { FeedScreen } from './src/features/feed/components';
+import { PostDetailScreen } from './src/features/post-detail/components';
 import { RootStoreProvider } from './src/stores/root-store';
 import { manropeFontMap } from './src/theme/tokens';
 
 export default function App() {
   useFonts(manropeFontMap);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -28,7 +30,14 @@ export default function App() {
       <RootStoreProvider>
         <QueryClientProvider client={queryClient}>
           <StatusBar style="dark" />
-          <FeedScreen />
+          {selectedPostId ? (
+            <PostDetailScreen
+              onBack={() => setSelectedPostId(null)}
+              postId={selectedPostId}
+            />
+          ) : (
+            <FeedScreen onOpenPost={setSelectedPostId} />
+          )}
         </QueryClientProvider>
       </RootStoreProvider>
     </SafeAreaProvider>

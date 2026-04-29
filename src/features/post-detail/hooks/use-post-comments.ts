@@ -1,26 +1,24 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import { getPosts } from '../../../api/posts';
+import { getComments } from '../../../api/posts';
 import { queryKeys } from '../../../api/query-keys';
 import { useRootStore } from '../../../stores/root-store';
-import { FeedTierFilter } from '../../../types/feed';
 
-export function useFeedPosts(tierFilter: FeedTierFilter = 'all') {
+export function usePostComments(postId: string) {
   const { sessionStore } = useRootStore();
-  const tier = tierFilter === 'all' ? undefined : tierFilter;
 
   return useInfiniteQuery({
-    queryKey: queryKeys.feedPosts(
+    queryKey: queryKeys.postComments(
       sessionStore.apiBaseUrl,
       sessionStore.userToken,
-      tierFilter,
+      postId,
     ),
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam, signal }) =>
-      getPosts({
+      getComments({
         baseUrl: sessionStore.apiBaseUrl,
         token: sessionStore.userToken,
-        tier,
+        postId,
         cursor: pageParam,
         signal,
       }),
