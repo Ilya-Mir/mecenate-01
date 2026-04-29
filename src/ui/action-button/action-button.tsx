@@ -49,17 +49,17 @@ function resolveVisualState(
 function ActionIcon({
   kind,
   color,
-  active,
+  filled,
 }: {
   kind: ActionButtonKind;
   color: string;
-  active: boolean;
+  filled: boolean;
 }) {
   if (kind === 'comment') {
     return <CommentIcon color={color} />;
   }
 
-  return <LikeIcon active={active} color={color} />;
+  return <LikeIcon color={color} filled={filled} />;
 }
 
 function ActionButtonContent({
@@ -75,7 +75,7 @@ function ActionButtonContent({
 }) {
   return (
     <>
-      <ActionIcon active={active} color={color} kind={kind} />
+      <ActionIcon color={color} filled={kind === 'like' && active} kind={kind} />
       <Text style={[styles.label, { color }]}>{value}</Text>
     </>
   );
@@ -145,7 +145,7 @@ export function ActionButton({
 
 const styles = StyleSheet.create({
   base: {
-    minWidth: tokens.components.actionButton.minWidth,
+    width: tokens.components.actionButton.width,
     height: tokens.components.actionButton.height,
     borderRadius: tokens.components.actionButton.radius,
     paddingLeft: tokens.components.actionButton.paddingLeft,

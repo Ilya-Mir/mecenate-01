@@ -1,7 +1,7 @@
 import { radius } from '../foundations/radius';
 
 export const feedCardTokens = {
-  minHeight: 595,
+  minHeight: 607,
   paidMinHeight: 563,
   radius: radius.sm,
   paddingHorizontal: 16,
@@ -13,7 +13,7 @@ export const feedCardTokens = {
   mediaHeight: 393,
   mediaGap: 8,
   contentGap: 8,
-  contentPaddingTop: 8,
+  contentPaddingTop: 0,
   previewCollapsedHeight: 40,
   previewOverlayWidth: 120,
   previewFadeWidth: 20,

@@ -11,7 +11,7 @@ export type ActionButtonVisualState =
 
 export const actionButtonTokens = {
   height: 36,
-  minWidth: 63,
+  width: 63,
   paddingLeft: 6,
   paddingRight: 12,
   gap: 4,

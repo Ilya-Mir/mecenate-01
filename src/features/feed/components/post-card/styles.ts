@@ -66,6 +66,9 @@ export const styles = StyleSheet.create({
     paddingTop: tokens.components.feedCard.contentPaddingTop,
     paddingHorizontal: tokens.components.feedCard.paddingHorizontal,
   },
+  paidBody: {
+    paddingTop: tokens.spacing[2],
+  },
   title: {
     ...tokens.typography.cardTitle,
     color: tokens.colors.content.primary,

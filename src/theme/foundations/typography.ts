@@ -16,12 +16,14 @@ const createTextStyle = (
 
 export const typography = {
   buttonLabel: createTextStyle(fontFamilies.semibold, 15, 26),
-  actionLabel: createTextStyle(fontFamilies.bold, 13, 18),
+  actionLabel: createTextStyle(fontFamilies.bold, 13, 18, {
+    fontVariant: ['tabular-nums'],
+  }),
   screenTitle: createTextStyle(fontFamilies.bold, 22, 28, {
     letterSpacing: -0.3,
   }),
   stateCardTitle: createTextStyle(fontFamilies.bold, 18, 26),
-  cardTitle: createTextStyle(fontFamilies.semibold, 16, 22),
+  cardTitle: createTextStyle(fontFamilies.bold, 18, 26),
   body: createTextStyle(fontFamilies.medium, 13, 18),
   bodyStrong: createTextStyle(fontFamilies.semibold, 13, 18),
   paywallMessage: createTextStyle(fontFamilies.semibold, 15, 20),

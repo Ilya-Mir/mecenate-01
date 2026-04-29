@@ -10,35 +10,44 @@ export const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
     paddingHorizontal: 0,
-    paddingTop: tokens.spacing[1],
+    paddingTop: 0,
     paddingBottom: tokens.spacing[8],
   },
-  filterBar: {
-    flexDirection: 'row',
-    gap: tokens.spacing[2],
+  filterWrapper: {
+    height: 38,
     paddingHorizontal: tokens.spacing[4],
-    paddingBottom: tokens.spacing[3],
+    marginBottom: tokens.spacing[3],
   },
-  filterTab: {
-    minHeight: 36,
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  filterBar: {
+    height: 38,
+    flexDirection: 'row',
+    alignItems: 'stretch',
     borderRadius: tokens.radius.pill,
     backgroundColor: tokens.colors.background.card,
     borderWidth: 1,
     borderColor: tokens.colors.border.subtle,
+    overflow: 'hidden',
+  },
+  filterTab: {
+    height: 38,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    borderRadius: tokens.radius.pill,
   },
   filterTabActive: {
     backgroundColor: tokens.colors.brand.primary,
-    borderColor: tokens.colors.brand.primary,
   },
   filterLabel: {
-    ...tokens.typography.bodyStrong,
+    fontFamily: tokens.fonts.medium,
+    fontSize: 13,
+    lineHeight: 18,
     color: tokens.colors.content.secondary,
     textAlign: 'center',
   },
   filterLabelActive: {
+    fontFamily: tokens.fonts.bold,
     color: tokens.colors.content.inverse,
   },
   inlineError: {

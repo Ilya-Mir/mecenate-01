@@ -106,7 +106,7 @@ export const PostCard = observer(function PostCard({
           {isPaidPost ? <PaidPostGate onPress={() => {}} /> : null}
         </View>
 
-        <View style={styles.body}>
+        <View style={[styles.body, isPaidPost ? styles.paidBody : null]}>
           {isPaidPost ? (
             <>
               <SkeletonBlock

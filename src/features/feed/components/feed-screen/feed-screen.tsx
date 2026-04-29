@@ -146,31 +146,34 @@ export const FeedScreen = observer(function FeedScreen({
         }
         ListHeaderComponent={
           <>
-            <View style={styles.filterBar}>
-              {FILTERS.map((filter) => {
-                const isActive = tierFilter === filter.value;
+            <View style={styles.filterWrapper}>
+              <View style={styles.filterBar}>
+                {FILTERS.map((filter) => {
+                  const isActive = tierFilter === filter.value;
 
-                return (
-                  <Pressable
-                    accessibilityRole="button"
-                    key={filter.value}
-                    onPress={() => setTierFilter(filter.value)}
-                    style={[
-                      styles.filterTab,
-                      isActive ? styles.filterTabActive : null,
-                    ]}
-                  >
-                    <Text
+                  return (
+                    <Pressable
+                      accessibilityRole="button"
+                      key={filter.value}
+                      onPress={() => setTierFilter(filter.value)}
                       style={[
-                        styles.filterLabel,
-                        isActive ? styles.filterLabelActive : null,
+                        styles.filterTab,
+                        isActive ? styles.filterTabActive : null,
                       ]}
                     >
-                      {filter.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+                      <Text
+                        numberOfLines={1}
+                        style={[
+                          styles.filterLabel,
+                          isActive ? styles.filterLabelActive : null,
+                        ]}
+                      >
+                        {filter.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
 
             {hasInlineError ? (

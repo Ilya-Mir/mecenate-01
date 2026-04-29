@@ -63,7 +63,7 @@ export function AnimatedLikeButton({
         style,
       ]}
     >
-      <LikeIcon active={active} color={palette.foreground} />
+      <LikeIcon color={palette.foreground} filled={active} />
       <Animated.Text
         style={[
           styles.label,
@@ -90,7 +90,6 @@ const styles = StyleSheet.create({
   },
   label: {
     ...tokens.typography.actionLabel,
-    fontVariant: ['tabular-nums'],
     textAlign: 'center',
   },
 });

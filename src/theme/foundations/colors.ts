@@ -11,7 +11,7 @@ export const colors = {
     skeleton: 'rgba(238, 239, 241, 0.8)',
   },
   content: {
-    primary: '#1A1D23',
+    primary: '#111416',
     secondary: '#57626F',
     tertiary: '#B6BEC8',
     inverse: '#FFFFFF',
@@ -43,7 +43,7 @@ export const colors = {
     success: '#2DB884',
   },
   border: {
-    subtle: '#E5EAF1',
+    subtle: '#E8ECEF',
   },
   overlay: {
     strong: 'rgba(14, 16, 26, 0.58)',
