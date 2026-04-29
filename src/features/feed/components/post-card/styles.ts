@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
     marginBottom: tokens.spacing[3],
     paddingTop: tokens.components.feedCard.paddingVertical,
     paddingBottom: tokens.components.feedCard.paddingVertical,
-    gap: tokens.components.feedCard.sectionGap,
+    gap: tokens.spacing[3],
   },
   paidCard: {
     minHeight: tokens.components.feedCard.paidMinHeight,

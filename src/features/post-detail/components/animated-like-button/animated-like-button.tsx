@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import {
+  actionButtonTokens,
   getActionButtonPalette,
 } from '../../../../theme/components/action-button';
 import { tokens } from '../../../../theme/tokens';
@@ -79,14 +80,15 @@ export function AnimatedLikeButton({
 
 const styles = StyleSheet.create({
   button: {
-    minWidth: 92,
-    height: 42,
-    borderRadius: tokens.radius.pill,
-    paddingHorizontal: tokens.spacing[4],
+    width: actionButtonTokens.width,
+    height: actionButtonTokens.height,
+    borderRadius: actionButtonTokens.radius,
+    paddingLeft: actionButtonTokens.paddingLeft,
+    paddingRight: actionButtonTokens.paddingRight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: tokens.spacing[2],
+    gap: actionButtonTokens.gap,
   },
   label: {
     ...tokens.typography.actionLabel,

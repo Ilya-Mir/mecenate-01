@@ -147,9 +147,11 @@ export const PostCard = observer(function PostCard({
     </View>
   ) : null;
 
+  const canOpenDetail = Boolean(onPress) && !isPaidPost;
+
   const content = (
     <>
-      {onPress ? (
+      {canOpenDetail ? (
         <Pressable
           accessibilityRole="button"
           onPress={onPress}

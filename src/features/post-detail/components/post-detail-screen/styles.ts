@@ -10,42 +10,68 @@ export const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  topBar: {
-    minHeight: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: tokens.spacing[4],
+  swipeRoot: {
+    flex: 1,
+    position: 'relative',
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: tokens.radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: tokens.colors.background.card,
-  },
-  backButtonLabel: {
-    ...tokens.typography.cardTitle,
-    color: tokens.colors.content.primary,
-  },
-  headerTitle: {
-    ...tokens.typography.cardTitle,
-    color: tokens.colors.content.primary,
-    textAlign: 'center',
+  mainColumn: {
     flex: 1,
   },
-  topBarSpacer: {
-    width: 40,
+  scroll: {
+    flex: 1,
   },
   contentContainer: {
-    paddingBottom: tokens.spacing[8],
-    gap: tokens.spacing[3],
+    /** Запас под фиксированный composer (~69px) + отступ. */
+    paddingBottom: tokens.spacing[9] + tokens.spacing[8],
+    paddingHorizontal: 0,
   },
   loadingState: {
     flex: 1,
-    gap: tokens.spacing[4],
-    padding: tokens.spacing[4],
+    position: 'relative',
+    gap: tokens.spacing[3],
+    paddingHorizontal: tokens.spacing[4],
+    paddingBottom: tokens.spacing[4],
+  },
+  loadingPostCard: {
+    marginHorizontal: 0,
+    paddingTop: tokens.components.feedCard.paddingVertical,
+    gap: tokens.components.feedCard.sectionGap,
+  },
+  loadingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: tokens.components.feedCard.headerGap,
+    paddingHorizontal: tokens.components.feedCard.paddingHorizontal,
+  },
+  loadingHeaderText: {
+    flex: 1,
+    gap: tokens.spacing[2],
+  },
+  loadingBody: {
+    gap: tokens.components.feedCard.mediaGap,
+    paddingHorizontal: tokens.components.feedCard.paddingHorizontal,
+    paddingBottom: tokens.components.feedCard.paddingVertical,
+  },
+  loadingActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: tokens.components.feedCard.actionRowGap,
+    paddingTop: tokens.spacing[1],
+  },
+  loadingCommentsBlock: {
+    paddingHorizontal: tokens.components.feedCard.paddingHorizontal,
+    paddingBottom: tokens.components.feedCard.paddingVertical,
+    gap: tokens.spacing[2],
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingLabel: {
+    marginTop: tokens.spacing[2],
+    ...tokens.typography.body,
+    color: tokens.colors.content.primary,
   },
   errorState: {
     flex: 1,
@@ -59,10 +85,26 @@ export const styles = StyleSheet.create({
     color: tokens.colors.content.primary,
     textAlign: 'center',
   },
-  postCard: {
+  /** Одна белая карточка: пост + комментарии (Figma scroll-news_content). */
+  detailCard: {
     marginHorizontal: 0,
-    paddingTop: tokens.spacing[3],
-    gap: tokens.spacing[4],
+    paddingTop: tokens.components.feedCard.paddingVertical,
+    paddingBottom: tokens.components.feedCard.paddingVertical,
+    gap: tokens.components.feedCard.sectionGap,
+  },
+  detailInner: {
+    gap: tokens.components.feedCard.sectionGap,
+  },
+  mediaColumn: {
+    gap: tokens.components.feedCard.mediaGap,
+  },
+  edgeSwipeZone: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 28,
+    zIndex: 20,
   },
   authorRow: {
     height: tokens.components.feedCard.headerHeight,
@@ -78,10 +120,6 @@ export const styles = StyleSheet.create({
   authorName: {
     ...tokens.typography.authorName,
     color: tokens.colors.content.primary,
-  },
-  authorMeta: {
-    ...tokens.typography.caption,
-    color: tokens.colors.content.secondary,
   },
   coverFrame: {
     position: 'relative',
@@ -118,54 +156,98 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   postBody: {
-    gap: tokens.spacing[3],
+    gap: tokens.components.feedCard.mediaGap,
     paddingHorizontal: tokens.components.feedCard.paddingHorizontal,
-    paddingBottom: tokens.spacing[4],
+    paddingBottom: tokens.components.feedCard.paddingVertical,
   },
   title: {
-    ...tokens.typography.screenTitle,
+    ...tokens.typography.cardTitle,
     color: tokens.colors.content.primary,
   },
-  bodyText: {
+  previewContainer: {
+    width: '100%',
+  },
+  preview: {
     ...tokens.typography.postPreview,
     color: tokens.colors.content.primary,
   },
   actionsRow: {
+    height: tokens.components.feedCard.actionRowHeight,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: tokens.components.feedCard.actionRowGap,
+  },
+  commentsSection: {
     gap: tokens.spacing[2],
-    paddingTop: tokens.spacing[1],
+    paddingHorizontal: tokens.components.feedCard.paddingHorizontal,
+    paddingBottom: tokens.components.feedCard.paddingVertical,
   },
-  commentsCard: {
-    marginHorizontal: 0,
-    padding: tokens.spacing[4],
-    gap: tokens.spacing[3],
+  commentsHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    width: '100%',
   },
-  sectionTitle: {
-    ...tokens.typography.cardTitle,
-    color: tokens.colors.content.primary,
+  commentsCountLabel: {
+    ...tokens.typography.commentsSectionTitle,
+    color: tokens.colors.content.commentHeader,
   },
-  commentInputBlock: {
-    gap: tokens.spacing[3],
-  },
-  commentInput: {
-    minHeight: 88,
-    borderRadius: tokens.radius.lg,
-    borderWidth: 1,
-    borderColor: tokens.colors.border.subtle,
-    padding: tokens.spacing[3],
-    ...tokens.typography.body,
-    color: tokens.colors.content.primary,
-    backgroundColor: tokens.colors.background.subtle,
-    textAlignVertical: 'top',
+  sortLink: {
+    ...tokens.typography.postPreviewLink,
+    color: tokens.colors.brand.primary,
   },
   commentsLoading: {
     gap: tokens.spacing[2],
+  },
+  nextPageLoader: {
+    paddingVertical: tokens.spacing[2],
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyComments: {
     ...tokens.typography.body,
     color: tokens.colors.content.secondary,
     textAlign: 'center',
     paddingVertical: tokens.spacing[5],
+  },
+  composer: {
+    minHeight: tokens.components.postDetailComposer.minHeight,
+    paddingHorizontal: tokens.components.postDetailComposer.paddingHorizontal,
+    paddingTop: tokens.components.postDetailComposer.paddingTop,
+    paddingBottom: tokens.components.postDetailComposer.paddingBottom,
+    overflow: 'hidden',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: tokens.colors.border.subtle,
+  },
+  /** Web: без нативного blur, фон как в Figma `#FFFFFF`. */
+  composerSolid: {
+    backgroundColor: tokens.colors.background.card,
+  },
+  composerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: tokens.components.postDetailComposer.rowGap,
+  },
+  composerInput: {
+    flex: 1,
+    minWidth: 0,
+    height: tokens.components.postDetailComposer.inputHeight,
+    borderRadius: tokens.components.postDetailComposer.inputBorderRadius,
+    borderWidth: tokens.components.postDetailComposer.inputBorderWidth,
+    borderColor: tokens.colors.background.muted,
+    paddingVertical: tokens.components.postDetailComposer.inputPaddingVertical,
+    paddingHorizontal: tokens.components.postDetailComposer.inputPaddingHorizontal,
+    ...tokens.typography.postPreview,
+    fontVariant: ['tabular-nums', 'lining-nums'],
+    color: tokens.colors.content.primary,
+    backgroundColor: tokens.colors.background.card,
+  },
+  sendButton: {
+    width: tokens.components.postDetailComposer.sendButtonSize,
+    height: tokens.components.postDetailComposer.sendButtonSize,
+    padding: tokens.components.postDetailComposer.sendButtonPadding,
+    borderRadius: tokens.radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

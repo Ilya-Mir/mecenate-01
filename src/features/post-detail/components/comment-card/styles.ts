@@ -3,23 +3,36 @@ import { StyleSheet } from 'react-native';
 import { tokens } from '../../../../theme/tokens';
 
 export const styles = StyleSheet.create({
-  card: {
+  row: {
     flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: tokens.spacing[2],
     gap: tokens.spacing[3],
-    paddingVertical: tokens.spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: tokens.colors.border.subtle,
   },
-  body: {
+  mainBlock: {
     flex: 1,
-    gap: tokens.spacing[1],
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: tokens.spacing[3],
+  },
+  labelsColumn: {
+    flex: 1,
+    gap: 2,
   },
   authorName: {
-    ...tokens.typography.bodyStrong,
+    ...tokens.typography.authorName,
     color: tokens.colors.content.primary,
   },
   text: {
-    ...tokens.typography.body,
+    ...tokens.typography.commentBody,
     color: tokens.colors.content.primary,
+  },
+  likeSlot: {
+    width: 35,
+    height: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
   },
 });

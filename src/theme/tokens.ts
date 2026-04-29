@@ -1,6 +1,7 @@
 import { actionButtonTokens } from './components/action-button';
 import { buttonTokens } from './components/button';
 import { feedCardTokens } from './components/card';
+import { postDetailComposerTokens } from './components/post-detail';
 import { feedStateCardTokens } from './components/state-card';
 import { colors } from './foundations/colors';
 import { fontFamilies } from './foundations/fonts';
@@ -20,6 +21,7 @@ export const tokens = {
     button: buttonTokens,
     actionButton: actionButtonTokens,
     feedCard: feedCardTokens,
+    postDetailComposer: postDetailComposerTokens,
     feedStateCard: feedStateCardTokens,
   },
 } as const;

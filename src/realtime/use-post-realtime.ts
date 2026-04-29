@@ -75,7 +75,16 @@ function prependComment(queryClient: QueryClient, options: {
     queryKeys.postComments(options.baseUrl, options.token, options.postId),
     (data) => {
       if (!data) {
-        return data;
+        return {
+          pageParams: [undefined],
+          pages: [
+            {
+              comments: [options.comment],
+              hasMore: false,
+              nextCursor: null,
+            },
+          ],
+        };
       }
 
       const alreadyExists = data.pages.some((page) =>
@@ -130,7 +139,7 @@ function prependComment(queryClient: QueryClient, options: {
 
 export function usePostRealtime(postId: string) {
   const queryClient = useQueryClient();
-  const { sessionStore } = useRootStore();
+  const { likesStore, sessionStore } = useRootStore();
 
   useEffect(() => {
     let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
@@ -156,6 +165,13 @@ export function usePostRealtime(postId: string) {
             postId,
             likesCount: event.likesCount,
           });
+
+          const updatedPost = queryClient.getQueryData<Post | undefined>(
+            queryKeys.postDetail(sessionStore.apiBaseUrl, sessionStore.userToken, postId),
+          );
+          if (updatedPost) {
+            likesStore.applyRealtimeCount(updatedPost, event.likesCount);
+          }
         }
 
         if (event.type === 'comment_added') {
@@ -186,5 +202,11 @@ export function usePostRealtime(postId: string) {
 
       socket?.close();
     };
-  }, [postId, queryClient, sessionStore.apiBaseUrl, sessionStore.userToken]);
+  }, [
+    likesStore,
+    postId,
+    queryClient,
+    sessionStore.apiBaseUrl,
+    sessionStore.userToken,
+  ]);
 }

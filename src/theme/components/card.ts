@@ -3,6 +3,7 @@ import { radius } from '../foundations/radius';
 export const feedCardTokens = {
   minHeight: 607,
   paidMinHeight: 563,
+  width: 393,
   radius: radius.sm,
   paddingHorizontal: 16,
   paddingVertical: 12,
@@ -30,7 +31,12 @@ export const feedCardTokens = {
   paywallIconBoxRadius: 10,
   paywallIconInnerSize: 30,
   paywallButtonWidth: 239,
+  paywallMessageContainerWidth: 393,
+  paywallMessageContainerPaddingHorizontal: 16,
+  paywallMessageContainerHeight: 157,
   paywallMessageWidth: 236,
   paywallContentWidth: 260,
+  paywallContentHeight: 114,
   paywallContentGap: 12,
+  paywallTextIconHeight: 90,
 } as const;

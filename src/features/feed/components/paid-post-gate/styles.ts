@@ -10,16 +10,21 @@ export const styles = StyleSheet.create({
     backgroundColor: tokens.colors.overlay.paywall,
   },
   message: {
-    width: tokens.components.feedCard.paywallContentWidth,
+    width: tokens.components.feedCard.paywallMessageContainerWidth,
+    minHeight: tokens.components.feedCard.paywallMessageContainerHeight,
+    paddingHorizontal: tokens.components.feedCard.paywallMessageContainerPaddingHorizontal,
     alignItems: 'center',
     gap: 1,
   },
   topContent: {
     padding: tokens.components.feedCard.paywallContentGap,
+    minHeight: tokens.components.feedCard.paywallContentHeight,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   textIcon: {
     width: tokens.components.feedCard.paywallMessageWidth,
+    minHeight: tokens.components.feedCard.paywallTextIconHeight,
     alignItems: 'center',
     justifyContent: 'center',
     gap: tokens.spacing[2],

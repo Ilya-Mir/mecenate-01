@@ -14,6 +14,10 @@ export const colors = {
     primary: '#111416',
     secondary: '#57626F',
     tertiary: '#B6BEC8',
+    /** Figma: «N комментариев» на detail */
+    commentHeader: '#68727D',
+    /** Figma: placeholder «Ваш комментарий» */
+    inputPlaceholder: '#A4AAB0',
     inverse: '#FFFFFF',
     inverseMuted: '#DFD0F5',
   },

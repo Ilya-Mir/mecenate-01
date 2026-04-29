@@ -7,6 +7,13 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: tokens.colors.background.page,
   },
+  screenContent: {
+    flex: 1,
+  },
+  listContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   contentContainer: {
     flexGrow: 1,
     paddingHorizontal: 0,
@@ -49,6 +56,17 @@ export const styles = StyleSheet.create({
   filterLabelActive: {
     fontFamily: tokens.fonts.bold,
     color: tokens.colors.content.inverse,
+  },
+  tabTransitionOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(245, 248, 253, 0.6)',
+  },
+  tabTransitionLabel: {
+    marginTop: tokens.spacing[2],
+    ...tokens.typography.body,
+    color: tokens.colors.content.primary,
   },
   inlineError: {
     marginHorizontal: tokens.spacing[4],

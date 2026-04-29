@@ -38,6 +38,7 @@ export const FeedScreen = observer(function FeedScreen({
 }: FeedScreenProps) {
   const { likesStore } = useRootStore();
   const [tierFilter, setTierFilter] = useState<FeedTierFilter>('all');
+  const [pendingTierFilter, setPendingTierFilter] = useState<FeedTierFilter | null>(null);
   const [uiPreview, setUiPreview] = useState<'off' | 'error' | 'no-results'>(() => {
     const preview = env.feedUiPreview;
     return preview === 'error' || preview === 'no-results' ? preview : 'off';
@@ -59,7 +60,22 @@ export const FeedScreen = observer(function FeedScreen({
     likesStore.reconcile(posts);
   }, [likesStore, posts]);
 
+  useEffect(() => {
+    if (
+      pendingTierFilter &&
+      pendingTierFilter === tierFilter &&
+      !isPending &&
+      !isRefetching
+    ) {
+      setPendingTierFilter(null);
+    }
+  }, [isPending, isRefetching, pendingTierFilter, tierFilter]);
+
   const isRefreshing = isRefetching && !isFetchingNextPage;
+  const isTabTransitionLoading =
+    pendingTierFilter !== null &&
+    pendingTierFilter === tierFilter &&
+    (isPending || isRefetching);
   const hasInitialError = Boolean(error) && posts.length === 0;
   const hasInlineError = Boolean(error) && posts.length > 0;
   const refreshControl =
@@ -116,94 +132,110 @@ export const FeedScreen = observer(function FeedScreen({
 
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
-      <FlatList<Post>
-        contentContainerStyle={styles.contentContainer}
-        data={posts}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={
-          isPending ? (
-            <View style={styles.loadingState}>
-              <FeedCardSkeleton />
-              <FeedCardSkeleton />
-            </View>
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>Лента пока пустая</Text>
-              <Text style={styles.emptyDescription}>
-                Когда авторы опубликуют новые материалы, они появятся здесь.
-              </Text>
-            </View>
-          )
-        }
-        ListFooterComponent={
-          isFetchingNextPage ? (
-            <View style={styles.footerLoader}>
-              <ActivityIndicator color={tokens.colors.brand.primary} size="small" />
-            </View>
-          ) : (
-            <View style={styles.footerSpacer} />
-          )
-        }
-        ListHeaderComponent={
-          <>
-            <View style={styles.filterWrapper}>
-              <View style={styles.filterBar}>
-                {FILTERS.map((filter) => {
-                  const isActive = tierFilter === filter.value;
+      <View style={styles.screenContent}>
+        <View style={styles.filterWrapper}>
+          <View style={styles.filterBar}>
+            {FILTERS.map((filter) => {
+              const isActive = tierFilter === filter.value;
 
-                  return (
-                    <Pressable
-                      accessibilityRole="button"
-                      key={filter.value}
-                      onPress={() => setTierFilter(filter.value)}
-                      style={[
-                        styles.filterTab,
-                        isActive ? styles.filterTabActive : null,
-                      ]}
-                    >
-                      <Text
-                        numberOfLines={1}
-                        style={[
-                          styles.filterLabel,
-                          isActive ? styles.filterLabelActive : null,
-                        ]}
-                      >
-                        {filter.label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
+              return (
+                <Pressable
+                  accessibilityRole="button"
+                  disabled={isTabTransitionLoading}
+                  key={filter.value}
+                  onPress={() => {
+                    if (filter.value === tierFilter) {
+                      return;
+                    }
 
-            {hasInlineError ? (
-              <View style={styles.inlineError}>
-                <Text style={styles.inlineErrorTitle}>
-                  Не удалось загрузить публикации
-                </Text>
-                <Text style={styles.inlineErrorText}>
-                  Уже загруженные карточки сохранены. Потяните список вниз или
-                  попробуйте еще раз позже.
-                </Text>
-              </View>
-            ) : null}
-          </>
-        }
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            void fetchNextPage();
-          }
-        }}
-        onEndReachedThreshold={0.35}
-        refreshControl={refreshControl}
-        renderItem={({ item }) => (
-          <PostCard
-            onPress={() => onOpenPost?.(item.id)}
-            post={item}
+                    setPendingTierFilter(filter.value);
+                    setTierFilter(filter.value);
+                  }}
+                  style={[
+                    styles.filterTab,
+                    isActive ? styles.filterTabActive : null,
+                  ]}
+                >
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.filterLabel,
+                      isActive ? styles.filterLabelActive : null,
+                    ]}
+                  >
+                    {filter.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
+        {hasInlineError ? (
+          <View style={styles.inlineError}>
+            <Text style={styles.inlineErrorTitle}>
+              Не удалось загрузить публикации
+            </Text>
+            <Text style={styles.inlineErrorText}>
+              Уже загруженные карточки сохранены. Потяните список вниз или
+              попробуйте еще раз позже.
+            </Text>
+          </View>
+        ) : null}
+
+        <View style={styles.listContainer}>
+          <FlatList<Post>
+            contentContainerStyle={styles.contentContainer}
+            data={posts}
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={
+              isPending ? (
+                <View style={styles.loadingState}>
+                  <FeedCardSkeleton />
+                  <FeedCardSkeleton />
+                </View>
+              ) : (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyTitle}>Лента пока пустая</Text>
+                  <Text style={styles.emptyDescription}>
+                    Когда авторы опубликуют новые материалы, они появятся здесь.
+                  </Text>
+                </View>
+              )
+            }
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <View style={styles.footerLoader}>
+                  <ActivityIndicator color={tokens.colors.brand.primary} size="small" />
+                </View>
+              ) : (
+                <View style={styles.footerSpacer} />
+              )
+            }
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                void fetchNextPage();
+              }
+            }}
+            onEndReachedThreshold={0.35}
+            refreshControl={refreshControl}
+            renderItem={({ item }) => (
+              <PostCard
+                onPress={() => onOpenPost?.(item.id)}
+                post={item}
+              />
+            )}
+            showsVerticalScrollIndicator={false}
           />
-        )}
-        showsVerticalScrollIndicator={false}
-      />
+
+          {isTabTransitionLoading ? (
+            <View style={styles.tabTransitionOverlay}>
+              <ActivityIndicator color={tokens.colors.brand.primary} size="large" />
+              <Text style={styles.tabTransitionLabel}>Загружаем публикации</Text>
+            </View>
+          ) : null}
+        </View>
+      </View>
     </SafeAreaView>
   );
 });
