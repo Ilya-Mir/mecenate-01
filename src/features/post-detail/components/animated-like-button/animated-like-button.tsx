@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { Platform, Pressable, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
