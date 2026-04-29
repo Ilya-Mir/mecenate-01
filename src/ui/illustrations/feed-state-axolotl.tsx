@@ -5,7 +5,6 @@ import { tokens } from '../../theme/tokens';
 import axolotlImage from '../../assets/images/feed-state-axolotl.png';
 
 interface FeedStateAxolotlIllustrationProps {
-  /** По умолчанию — размер из токенов state-card (Figma 112×112). */
   size?: number;
   accessibilityLabel?: string;
 }

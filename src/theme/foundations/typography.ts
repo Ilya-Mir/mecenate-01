@@ -32,11 +32,9 @@ export const typography = {
   caption: createTextStyle(fontFamilies.medium, 12, 16),
   captionStrong: createTextStyle(fontFamilies.semibold, 12, 16),
   authorName: createTextStyle(fontFamilies.bold, 15, 20),
-  /** Текст комментария на detail (Figma) */
   commentBody: createTextStyle(fontFamilies.medium, 14, 20, {
     fontVariant: ['tabular-nums'],
   }),
-  /** Заголовок блока комментариев: «N комментариев» */
   commentsSectionTitle: createTextStyle(fontFamilies.semibold, 15, 20, {
     fontVariant: ['tabular-nums'],
   }),

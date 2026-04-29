@@ -1,11 +1,12 @@
 import { InfiniteData, useQueryClient } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
 import { observer } from 'mobx-react-lite';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   NativeSyntheticEvent,
   NativeScrollEvent,
@@ -17,14 +18,14 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { addComment, toggleLike } from '../../../../api/posts';
 import { queryKeys } from '../../../../api/query-keys';
 import { usePostRealtime } from '../../../../realtime/use-post-realtime';
 import { useRootStore } from '../../../../stores/root-store';
 import { tokens } from '../../../../theme/tokens';
-import { CommentsPage, Post, PostsPage } from '../../../../types/api';
+import { Comment, CommentsPage, Post, PostsPage } from '../../../../types/api';
 import { FeedTierFilter } from '../../../../types/feed';
 import { formatCompactCount } from '../../../../utils/format';
 import { formatCommentsCountLabel } from '../../../../utils/format-comments-count';
@@ -75,20 +76,38 @@ export const PostDetailScreen = observer(function PostDetailScreen({
   onBack,
 }: PostDetailScreenProps) {
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
   const { likesStore, sessionStore } = useRootStore();
   const [commentText, setCommentText] = useState('');
   const [isSendingComment, setIsSendingComment] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const lastAutoLoadCursorRef = useRef<string | null>(null);
   const postQuery = usePostDetail(postId);
   const commentsQuery = usePostComments(postId);
 
   usePostRealtime(postId);
 
-  const edgeSwipePan = useMemo(
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, () => {
+      setIsKeyboardVisible(true);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setIsKeyboardVisible(false);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  const postScreenBackPan = useMemo(
     () =>
       PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) =>
-          g.dx > 12 && Math.abs(g.dx) > Math.abs(g.dy) + 4,
+        onMoveShouldSetPanResponderCapture: (_, g) =>
+          g.dx > 22 && g.dx > Math.abs(g.dy) * 1.75,
+        onPanResponderTerminationRequest: () => true,
         onPanResponderRelease: (_, g) => {
           if (g.dx > 56) {
             onBack();
@@ -99,7 +118,23 @@ export const PostDetailScreen = observer(function PostDetailScreen({
   );
 
   const post = postQuery.data;
-  const comments = commentsQuery.data?.pages.flatMap((page) => page.comments) ?? [];
+  const comments = useMemo(() => {
+    const pages = commentsQuery.data?.pages;
+    if (!pages) {
+      return [];
+    }
+    const seen = new Set<string>();
+    const out: Comment[] = [];
+    for (const page of pages) {
+      for (const c of page.comments) {
+        if (!seen.has(c.id)) {
+          seen.add(c.id);
+          out.push(c);
+        }
+      }
+    }
+    return out;
+  }, [commentsQuery.data]);
   const likeSnapshot = post
     ? likesStore.getSnapshot(post)
     : { isLiked: false, likesCount: 0, isPending: false };
@@ -192,35 +227,55 @@ export const PostDetailScreen = observer(function PostDetailScreen({
         text,
       });
 
-      queryClient.setQueryData<InfiniteData<CommentsPage> | undefined>(
-        queryKeys.postComments(sessionStore.apiBaseUrl, sessionStore.userToken, postId),
-        (data) => {
-          if (!data) {
-            return data;
-          }
-
-          const [firstPage, ...restPages] = data.pages;
-
-          if (!firstPage) {
-            return data;
-          }
-
-          return {
-            ...data,
-            pages: [
-              {
-                ...firstPage,
-                comments: [comment, ...firstPage.comments],
-              },
-              ...restPages,
-            ],
-          };
-        },
+      const commentsKey = queryKeys.postComments(
+        sessionStore.apiBaseUrl,
+        sessionStore.userToken,
+        postId,
       );
-      patchPostCaches((currentPost) => ({
-        ...currentPost,
-        commentsCount: currentPost.commentsCount + 1,
-      }));
+      const priorComments = queryClient.getQueryData<InfiniteData<CommentsPage>>(commentsKey);
+      const commentAlreadyInCache =
+        priorComments?.pages.some((p) => p.comments.some((c) => c.id === comment.id)) ?? false;
+
+      if (!commentAlreadyInCache) {
+        queryClient.setQueryData<InfiniteData<CommentsPage> | undefined>(
+          commentsKey,
+          (data) => {
+            if (!data) {
+              return {
+                pageParams: [undefined],
+                pages: [
+                  {
+                    comments: [comment],
+                    hasMore: false,
+                    nextCursor: null,
+                  },
+                ],
+              };
+            }
+
+            const [firstPage, ...restPages] = data.pages;
+
+            if (!firstPage) {
+              return data;
+            }
+
+            return {
+              ...data,
+              pages: [
+                {
+                  ...firstPage,
+                  comments: [comment, ...firstPage.comments],
+                },
+                ...restPages,
+              ],
+            };
+          },
+        );
+        patchPostCaches((currentPost) => ({
+          ...currentPost,
+          commentsCount: currentPost.commentsCount + 1,
+        }));
+      }
       setCommentText('');
     } catch {
       Alert.alert('Не удалось отправить комментарий');
@@ -251,16 +306,17 @@ export const PostDetailScreen = observer(function PostDetailScreen({
     }
   };
 
-  const swipeOverlay = (
-    <View pointerEvents="box-none" style={styles.edgeSwipeZone} {...edgeSwipePan.panHandlers} />
-  );
-
   if (postQuery.isPending) {
     return (
-      <SafeAreaView edges={['top', 'bottom']} style={styles.screen}>
+      <SafeAreaView edges={['top']} style={styles.screen}>
         <View style={styles.swipeRoot}>
-          {swipeOverlay}
-          <View style={styles.loadingState}>
+          <View style={styles.scrollBackCapture} {...postScreenBackPan.panHandlers}>
+            <View
+              style={[
+                styles.loadingState,
+                { paddingBottom: tokens.spacing[4] + insets.bottom },
+              ]}
+            >
             <CardSurface style={styles.loadingPostCard}>
               <View style={styles.loadingHeader}>
                 <SkeletonBlock height={40} width={40} />
@@ -289,6 +345,7 @@ export const PostDetailScreen = observer(function PostDetailScreen({
               <ActivityIndicator color={tokens.colors.brand.primary} size="large" />
               <Text style={styles.loadingLabel}>Загружаем публикацию</Text>
             </View>
+            </View>
           </View>
         </View>
       </SafeAreaView>
@@ -297,18 +354,21 @@ export const PostDetailScreen = observer(function PostDetailScreen({
 
   if (postQuery.isError || !post) {
     return (
-      <SafeAreaView edges={['top', 'bottom']} style={styles.screen}>
+      <SafeAreaView edges={['top']} style={styles.screen}>
         <View style={styles.swipeRoot}>
-          {swipeOverlay}
-          <View style={styles.errorState}>
-            <Text style={styles.errorTitle}>Не удалось загрузить публикацию</Text>
-            <Button
-              fullWidth
-              label="Повторить"
-              onPress={() => {
-                void postQuery.refetch();
-              }}
-            />
+          <View style={styles.scrollBackCapture} {...postScreenBackPan.panHandlers}>
+            <View
+              style={[styles.errorState, { paddingBottom: tokens.spacing[4] + insets.bottom }]}
+            >
+              <Text style={styles.errorTitle}>Не удалось загрузить публикацию</Text>
+              <Button
+                fullWidth
+                label="Повторить"
+                onPress={() => {
+                  void postQuery.refetch();
+                }}
+              />
+            </View>
           </View>
         </View>
       </SafeAreaView>
@@ -357,23 +417,23 @@ export const PostDetailScreen = observer(function PostDetailScreen({
   );
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={styles.screen}>
+    <SafeAreaView edges={['top']} style={styles.screen}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
       >
         <View style={styles.swipeRoot}>
-          {swipeOverlay}
           <View style={styles.mainColumn}>
-            <ScrollView
-              contentContainerStyle={styles.contentContainer}
-              contentInsetAdjustmentBehavior="automatic"
-              keyboardShouldPersistTaps="handled"
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              showsVerticalScrollIndicator={false}
-              style={styles.scroll}
-            >
+            <View style={styles.scrollBackCapture} {...postScreenBackPan.panHandlers}>
+              <ScrollView
+                contentContainerStyle={styles.contentContainer}
+                contentInsetAdjustmentBehavior="automatic"
+                keyboardShouldPersistTaps="handled"
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                style={styles.scroll}
+              >
               <CardSurface style={styles.detailCard}>
                 <View style={styles.detailInner}>
                   <View style={styles.authorRow}>
@@ -467,20 +527,22 @@ export const PostDetailScreen = observer(function PostDetailScreen({
                   ) : null}
                 </View>
               </CardSurface>
-            </ScrollView>
+              </ScrollView>
+            </View>
           </View>
 
-          {Platform.OS === 'web' ? (
-            <View style={[styles.composer, styles.composerSolid]}>{composerRow}</View>
-          ) : (
-            <BlurView
-              intensity={tokens.components.postDetailComposer.blurIntensity}
-              style={styles.composer}
-              tint="light"
-            >
-              {composerRow}
-            </BlurView>
-          )}
+          <View
+            style={[
+              styles.composer,
+              {
+                paddingBottom:
+                  tokens.components.postDetailComposer.paddingBottom +
+                  (isKeyboardVisible ? 0 : insets.bottom),
+              },
+            ]}
+          >
+            {composerRow}
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

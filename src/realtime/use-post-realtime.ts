@@ -107,7 +107,10 @@ function prependComment(queryClient: QueryClient, options: {
         pages: [
           {
             ...firstPage,
-            comments: [options.comment, ...firstPage.comments],
+            comments: [
+              options.comment,
+              ...firstPage.comments.filter((c) => c.id !== options.comment.id),
+            ],
           },
           ...restPages,
         ],
@@ -137,6 +140,10 @@ function prependComment(queryClient: QueryClient, options: {
   });
 }
 
+const WS_BASE_RECONNECT_MS = 1500;
+const WS_MAX_RECONNECT_MS = 30_000;
+const WS_MAX_BACKOFF_EXPONENT = 8;
+
 export function usePostRealtime(postId: string) {
   const queryClient = useQueryClient();
   const { likesStore, sessionStore } = useRootStore();
@@ -145,11 +152,62 @@ export function usePostRealtime(postId: string) {
     let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
     let socket: WebSocket | undefined;
     let shouldReconnect = true;
+    let reconnectAttempt = 0;
+
+    const clearReconnectTimer = () => {
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = undefined;
+      }
+    };
+
+    const scheduleReconnect = () => {
+      if (!shouldReconnect) {
+        return;
+      }
+
+      clearReconnectTimer();
+
+      const exponent = Math.min(reconnectAttempt, WS_MAX_BACKOFF_EXPONENT);
+      const backoff = Math.min(WS_MAX_RECONNECT_MS, WS_BASE_RECONNECT_MS * 2 ** exponent);
+      const jitter = Math.random() * 500;
+      const delay = backoff + jitter;
+      reconnectAttempt += 1;
+
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = undefined;
+        connect();
+      }, delay);
+    };
+
+    const teardownSocket = (instance: WebSocket | undefined) => {
+      if (!instance) {
+        return;
+      }
+
+      instance.onopen = null;
+      instance.onmessage = null;
+      instance.onerror = null;
+      instance.onclose = null;
+
+      if (
+        instance.readyState === WebSocket.OPEN ||
+        instance.readyState === WebSocket.CONNECTING
+      ) {
+        instance.close();
+      }
+    };
 
     const connect = () => {
-      socket = new WebSocket(
-        createRealtimeUrl(sessionStore.apiBaseUrl, sessionStore.userToken),
-      );
+      clearReconnectTimer();
+      teardownSocket(socket);
+
+      const url = createRealtimeUrl(sessionStore.apiBaseUrl, sessionStore.userToken);
+      socket = new WebSocket(url);
+
+      socket.onopen = () => {
+        reconnectAttempt = 0;
+      };
 
       socket.onmessage = (message) => {
         const event = parseEvent(String(message.data));
@@ -184,9 +242,25 @@ export function usePostRealtime(postId: string) {
         }
       };
 
+      socket.onerror = () => {
+        if (socket && socket.readyState !== WebSocket.CLOSED) {
+          socket.close();
+        }
+      };
+
       socket.onclose = () => {
+        const closedSocket = socket;
+        socket = undefined;
+
+        if (closedSocket) {
+          closedSocket.onopen = null;
+          closedSocket.onmessage = null;
+          closedSocket.onerror = null;
+          closedSocket.onclose = null;
+        }
+
         if (shouldReconnect) {
-          reconnectTimer = setTimeout(connect, 1500);
+          scheduleReconnect();
         }
       };
     };
@@ -195,12 +269,9 @@ export function usePostRealtime(postId: string) {
 
     return () => {
       shouldReconnect = false;
-
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
-      }
-
-      socket?.close();
+      clearReconnectTimer();
+      teardownSocket(socket);
+      socket = undefined;
     };
   }, [
     likesStore,

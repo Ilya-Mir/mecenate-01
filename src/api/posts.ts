@@ -12,7 +12,7 @@ import {
 } from '../types/api';
 
 const POSTS_LIMIT = 10;
-const COMMENTS_LIMIT = 10;
+const COMMENTS_LIMIT = 20;
 
 interface GetPostsOptions {
   baseUrl: string;

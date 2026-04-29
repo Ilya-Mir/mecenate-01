@@ -1,5 +1,12 @@
 import * as Haptics from 'expo-haptics';
-import { Platform, Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import {
+  Platform,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -64,7 +71,9 @@ export function AnimatedLikeButton({
         style,
       ]}
     >
-      <LikeIcon color={palette.foreground} filled={active} />
+      <View style={styles.iconSlot}>
+        <LikeIcon color={palette.foreground} filled={active} />
+      </View>
       <Animated.Text
         style={[
           styles.label,
@@ -93,5 +102,11 @@ const styles = StyleSheet.create({
   label: {
     ...tokens.typography.actionLabel,
     textAlign: 'center',
+  },
+  iconSlot: {
+    width: actionButtonTokens.iconSlotSize,
+    height: actionButtonTokens.iconSlotSize,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

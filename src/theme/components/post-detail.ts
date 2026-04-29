@@ -1,0 +1,15 @@
+export const postDetailComposerTokens = {
+  paddingHorizontal: 16,
+  paddingTop: 16,
+  paddingBottom: 13,
+  rowGap: 10,
+  inputHeight: 40,
+  inputBorderRadius: 20,
+  inputBorderWidth: 2,
+  inputPaddingHorizontal: 16,
+  inputPaddingVertical: 10,
+  sendButtonSize: 30,
+  sendButtonPadding: 5.625,
+  sendIconWidth: 18.75,
+  gapAboveComposer: 8,
+} as const;

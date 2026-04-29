@@ -21,8 +21,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    /** Запас под фиксированный composer (~69px) + отступ. */
-    paddingBottom: tokens.spacing[9] + tokens.spacing[8],
+    paddingBottom: tokens.spacing[4],
     paddingHorizontal: 0,
   },
   loadingState: {
@@ -85,7 +84,6 @@ export const styles = StyleSheet.create({
     color: tokens.colors.content.primary,
     textAlign: 'center',
   },
-  /** Одна белая карточка: пост + комментарии (Figma scroll-news_content). */
   detailCard: {
     marginHorizontal: 0,
     paddingTop: tokens.components.feedCard.paddingVertical,
@@ -98,13 +96,8 @@ export const styles = StyleSheet.create({
   mediaColumn: {
     gap: tokens.components.feedCard.mediaGap,
   },
-  edgeSwipeZone: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 28,
-    zIndex: 20,
+  scrollBackCapture: {
+    flex: 1,
   },
   authorRow: {
     height: tokens.components.feedCard.headerHeight,
@@ -211,17 +204,13 @@ export const styles = StyleSheet.create({
     paddingVertical: tokens.spacing[5],
   },
   composer: {
-    minHeight: tokens.components.postDetailComposer.minHeight,
+    marginTop: tokens.components.postDetailComposer.gapAboveComposer,
     paddingHorizontal: tokens.components.postDetailComposer.paddingHorizontal,
     paddingTop: tokens.components.postDetailComposer.paddingTop,
-    paddingBottom: tokens.components.postDetailComposer.paddingBottom,
+    backgroundColor: tokens.colors.background.card,
     overflow: 'hidden',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: tokens.colors.border.subtle,
-  },
-  /** Web: без нативного blur, фон как в Figma `#FFFFFF`. */
-  composerSolid: {
-    backgroundColor: tokens.colors.background.card,
   },
   composerRow: {
     flexDirection: 'row',

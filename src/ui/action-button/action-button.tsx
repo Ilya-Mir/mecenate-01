@@ -75,7 +75,9 @@ function ActionButtonContent({
 }) {
   return (
     <>
-      <ActionIcon color={color} filled={kind === 'like' && active} kind={kind} />
+      <View style={styles.iconSlot}>
+        <ActionIcon color={color} filled={kind === 'like' && active} kind={kind} />
+      </View>
       <Text style={[styles.label, { color }]}>{value}</Text>
     </>
   );
@@ -158,5 +160,11 @@ const styles = StyleSheet.create({
   label: {
     ...tokens.components.actionButton.label,
     textAlign: 'center',
+  },
+  iconSlot: {
+    width: tokens.components.actionButton.iconSlotSize,
+    height: tokens.components.actionButton.iconSlotSize,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
